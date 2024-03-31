@@ -1,5 +1,7 @@
 import { Card } from "@repo/ui/card"
 
+type Status = 'Success' | 'Failure' | 'Processing';
+
 export const OnRampTransactions = ({
     transactions
 }: {
@@ -7,7 +9,7 @@ export const OnRampTransactions = ({
         time: Date,
         amount: number,
         // TODO: Can the type of `status` be more specific?
-        status: string,
+        status: Status,
         provider: string
     }[]
 }) => {
@@ -20,20 +22,32 @@ export const OnRampTransactions = ({
     }
     return <Card title="Recent Transactions">
         <div className="pt-2">
-            {transactions.map(t => <div className="flex justify-between">
-                <div>
-                    <div className="text-sm">
-                        Received INR
-                    </div>
-                    <div className="text-slate-600 text-xs">
-                        {t.time.toDateString()}
-                    </div>
-                </div>
-                <div className="flex flex-col justify-center">
-                    + Rs {t.amount / 100}
-                </div>
+            {transactions.map(t => {
+                let statusBgColor = '';
 
-            </div>)}
+                if (t.status === 'Success') statusBgColor = 'bg-green-400';
+                else if (t.status === 'Failure') statusBgColor = 'bg-red-500';
+                else statusBgColor = 'bg-yellow-300';
+
+                return (<div className="mb-3">
+                    <div className="flex justify-between items-baseline">
+                        <div className="text-sm">
+                            Received INR
+                        </div>
+                        <div>
+                            Rs {t.amount / 100}
+                        </div>
+                    </div>
+                    <div className="flex justify-between items-baseline">
+                        <div className="text-slate-600 text-xs">
+                            {t.time.toDateString()}
+                        </div>
+                        <div className="text-slate-600 text-xs">
+                            <span className={`${statusBgColor} text-slate-700 font-bold px-1.5 py-0.5 rounded`}>{t.status}</span>
+                        </div>
+                    </div>
+                </div>)
+            })}
         </div>
     </Card>
 }

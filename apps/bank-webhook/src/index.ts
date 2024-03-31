@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json())
 
-app.post("/hdfcWebhook", async (req, res) => {
+app.post("/hdfcWebhook",async (req,res) => {
     //TODO: Add zod validation here?
     //TODO: HDFC bank should ideally send us a secret so we know this is sent by them
     const paymentInformation: {
@@ -33,7 +33,7 @@ app.post("/hdfcWebhook", async (req, res) => {
             db.onRampTransaction.updateMany({
                 where: {
                     token: paymentInformation.token
-                }, 
+                },
                 data: {
                     status: "Success",
                 }
@@ -43,8 +43,16 @@ app.post("/hdfcWebhook", async (req, res) => {
         res.json({
             message: "Captured"
         })
-    } catch(e) {
+    } catch (e) {
         console.error(e);
+        await db.onRampTransaction.updateMany({
+            where: {
+                token: paymentInformation.token
+            },
+            data: {
+                status: "Failure"
+            }
+        })
         res.status(411).json({
             message: "Error while processing webhook"
         })
